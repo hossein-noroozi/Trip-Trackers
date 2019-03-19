@@ -10,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.Swagger;
+using TripTrackerApi.Data;
 
 namespace TripTrackerApi
 {
@@ -25,12 +27,32 @@ namespace TripTrackerApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<Repository>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            //Adding Swagger Gen Options
+            services.AddSwaggerGen(opt =>
+            opt.SwaggerDoc("v1", new Info { Title = "TripTracker", Version = "v1" })
+            );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            //Adding swagger and swagger UI options
+            app.UseSwagger();
+
+            // just for safty of your data try to envoierment that you need swagger UI in
+            if (env.IsDevelopment() || env.IsStaging())
+            {
+                app.UseSwaggerUI(opt =>
+                opt.SwaggerEndpoint("/swagger/v1/swagger.json", "Trip Tracker v1")
+                );
+
+            }
+
+
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
